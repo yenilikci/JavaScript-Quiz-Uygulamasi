@@ -24,7 +24,7 @@ Quiz.prototype.getQuestion = function(){
 
 //Quiz Prototip - Quiz bitti mi?
 Quiz.prototype.isFinish = function(){
-    return (this.questions.length === (this.questionIndex + 1));
+    return (this.questions.length === (this.questionIndex));    
 }
 
 //Quiz Prototip - Cevaplama
@@ -39,26 +39,57 @@ Quiz.prototype.guess = function(answer){
 
 
 //Soruların Oluşturulması
-var q1 = new Question("Kararlı sürümü ECMAScript6 olan dil?",['C#','JavaScript','Python'],"JavaScript");
+var q1 = new Question("Kararlı sürümü ECMAScript6 olan dil?",['C#','JavaScript','Python','C++'],"JavaScript");
 
-var q2 = new Question("... Chrome'un JavaScript Runtime teknolojisi üzerine kurulu bir platformdur.",['Visual Basic','NodeJs','Php'],"NodeJS");
+var q2 = new Question("... Chrome'un JavaScript Runtime teknolojisi üzerine kurulu bir platformdur.",['Visual Basic','NodeJS','Php','C++'],"NodeJS");
 
-var q3 = new Question("... dilinde değişkenler var, let ve const anahtar kelimeleri ile tanımlanabilir.",['Visual Basic','JavaScript','Java'],"JavaScript");
+var q3 = new Question("... dilinde değişkenler var, let ve const anahtar kelimeleri ile tanımlanabilir.",['Visual Basic','JavaScript','Java','C++'],"JavaScript");
 
 var questions = [q1,q2,q3]; //soru dizisi
 
-//Quiz başlat
+//Quiz Başlat
 var quiz = new Quiz(questions);
 
-console.log(quiz.isFinish());
+loadQuestion(); //soru yükle
 
-console.log(quiz.getQuestion());
-quiz.guess('JavaScript');
+function loadQuestion(){
+    if(quiz.isFinish()){ //eğer quiz biterse
+        showScore(); //skoru göster
+    }else{
+        let qs = quiz.getQuestion(); //soruyu getir
+        let ch = qs.choices; //seçenekleri al
+        document.querySelector('#question').textContent = qs.text; //question id'li elemente soru yazıldı
 
-console.log(quiz.getQuestion());
-quiz.guess('NodeJS');
+        for(i = 0; i < ch.length ; i++){
+            let element = document.querySelector('#choice'+i); //choice id'li elementler sırası ile elemente atanıp
+            element.innerText = ch[i]; //bu elementin txt'ine seçenekler yazıldı
+            guess('btn'+i,ch[i]);
+        } 
 
-console.log(quiz.getQuestion());
-quiz.guess('JavaScript');
+        showProgress(); //ilerlemeyi gösterecek fonksiyon
+    }
+}
 
-console.log(quiz.score);    
+//Yanıtların Verilmesi
+function guess(id,guessAns){
+    let btn = document.getElementById(id); //ilgili id'ye sahip buton seçildi
+    btn.onclick = function(){ //bu butonun onclick olayı ile nesne içindeki prototip guess fonk çalıştırıldı
+        quiz.guess(guessAns)
+        loadQuestion(); //bir sonraki soru için
+    }
+}
+
+//Skoru Gösterir
+function showScore(){
+    let html = `<h2>Skorunuz </h2><h4>${quiz.score}</h4>`; //skor bilgisi
+    let cardBody = document.querySelector('.card-body'); //card-body seçildi
+    cardBody.innerHTML = html; //skor bilgisi card-body'e yazıldı
+    cardBody.classList.add('bg-dark','text-white'); //card-body css sınıflarına ekleme yapıldı
+}
+
+//İlerlemeyi Gösterir
+function showProgress(){
+    let totalQuestion = quiz.questions.length; //toplam soru sayısı
+    let questionNumber = quiz.questionIndex + 1; //hangi soru
+    document.querySelector('#progress').innerHTML = 'Soru ' + questionNumber + '/' + totalQuestion; //progress üzerine yazılması
+}
